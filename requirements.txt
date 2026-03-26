@@ -1,0 +1,4 @@
+pygame-ce
+esper == 2.5
+pygbag
+pyinstaller

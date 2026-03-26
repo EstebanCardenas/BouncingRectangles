@@ -9,7 +9,6 @@ from src.config import EnemyData
 def system_enemy_spawner(
     world: esper.World,
     current_time: float,
-    enemies: dict[str, EnemyData]
 ):
     components = world.get_components(CEnemySpawner)
 
@@ -17,7 +16,7 @@ def system_enemy_spawner(
     for entity, (c_es, ) in components:
         for evt in c_es.evts:
             if current_time >= evt.time and (not evt.triggered):
-                enemy: EnemyData = enemies.get(evt.enemy_type)
+                enemy = evt.enemy_data
                 
                 # Generate random velocity magnitude
                 velocity_magnitude = random.uniform(enemy.velocity_min, enemy.velocity_max)

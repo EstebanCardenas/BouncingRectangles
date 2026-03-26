@@ -1,15 +1,19 @@
 import json
 
+from src.config.enemies_config import EnemyData
+
 class LevelEvent:
-    def __init__(self, time: float, enemy_type: str, position: dict) -> None:
+    def __init__(self, time: float, enemy_type: str, enemy_data: EnemyData, position: dict) -> None:
         self.time = time
         self.enemy_type = enemy_type
+        self.enemy_data = enemy_data
         self.position = (position['x'], position['y'])
         self.triggered = False
 
 class LevelConfig:
-    def __init__(self) -> None:
+    def __init__(self, enemies: dict[str, EnemyData]) -> None:
         self.events: list[LevelEvent] = []
+        self.enemies = enemies
 
     def load_config(self, config_path: str):
         with open(config_path, 'r', encoding='utf-8') as file:
@@ -17,7 +21,7 @@ class LevelConfig:
         
         events_data = data['enemy_spawn_events']
         self.events = [
-            LevelEvent(e['time'], e['enemy_type'], e['position'])
+            LevelEvent(e['time'], e['enemy_type'], self.enemies[e['enemy_type']], e['position'])
             for e in events_data
         ]
         # Ensure events are sorted by time for efficient processing

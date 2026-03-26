@@ -10,18 +10,15 @@ from src.ecs.systems import *
 class GameEngine:
     config: EngineConfig
     level_config: LevelConfig
-    enemies: dict[str, EnemyData]
 
     def __init__(
         self, 
         config: EngineConfig,
         level_config: LevelConfig,
-        enemies_config: EnemiesConfig,
     ) -> None:
         # Config objects
         self.config = config
         self.level_config = level_config
-        self.enemies = enemies_config.enemies
         # Init logic
         pygame.init()
         self.screen = pygame.display.set_mode(
@@ -66,7 +63,7 @@ class GameEngine:
     def _update(self):
         system_movement(self.ecs_world, self.delta_time)
         system_screen_bounce(self.ecs_world, self.screen)
-        system_enemy_spawner(self.ecs_world, self.current_time, self.enemies)
+        system_enemy_spawner(self.ecs_world, self.current_time)
 
     def _draw(self):
         self.screen.fill(self.config.bg_color)

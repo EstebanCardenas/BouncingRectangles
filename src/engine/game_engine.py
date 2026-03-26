@@ -1,16 +1,28 @@
 import pygame
 import esper
 
-from src.engine.engine_config import EngineConfig
-from src.create.prefab_creator import crear_cuadrado
+from src.config import EngineConfig, EnemyData, EnemiesConfig, LevelConfig
+from src.create.prefab_creator import create_enemy_spawner
 from src.ecs.components import *
 from src.ecs.systems import *
 
+
 class GameEngine:
     config: EngineConfig
+    level_config: LevelConfig
+    enemies: dict[str, EnemyData]
 
-    def __init__(self, config: EngineConfig) -> None:
+    def __init__(
+        self, 
+        config: EngineConfig,
+        level_config: LevelConfig,
+        enemies_config: EnemiesConfig,
+    ) -> None:
+        # Config objects
         self.config = config
+        self.level_config = level_config
+        self.enemies = enemies_config.enemies
+        # Init logic
         pygame.init()
         self.screen = pygame.display.set_mode(
             config.size,
@@ -21,6 +33,7 @@ class GameEngine:
         self.is_running = False
         self.framerate = config.framerate
         self.delta_time = 0.0
+        self.current_time = 0.0
 
         self.ecs_world = esper.World()
 
@@ -35,17 +48,15 @@ class GameEngine:
         self._clean()
 
     def _create(self):
-        crear_cuadrado(
-            self.ecs_world, 
-            size=pygame.Vector2(50, 50), 
-            color=pygame.Color(255, 255, 100),
-            pos=pygame.Vector2(150, 100),
-            vel=pygame.Vector2(100, 100),
+        create_enemy_spawner(
+            self.ecs_world,
+            events=self.level_config.events,
         )
 
     def _calculate_time(self):
         self.clock.tick(self.framerate)
         self.delta_time = self.clock.get_time() / 1000.0
+        self.current_time += self.delta_time
 
     def _process_events(self):
         for event in pygame.event.get():
@@ -55,6 +66,7 @@ class GameEngine:
     def _update(self):
         system_movement(self.ecs_world, self.delta_time)
         system_screen_bounce(self.ecs_world, self.screen)
+        system_enemy_spawner(self.ecs_world, self.current_time, self.enemies)
 
     def _draw(self):
         self.screen.fill(self.config.bg_color)

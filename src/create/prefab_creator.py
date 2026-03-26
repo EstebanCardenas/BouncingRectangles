@@ -1,9 +1,10 @@
 import esper
 import pygame
 
-from src.ecs.components import CSurface, CTransform, CVelocity
+from src.ecs.components import CSurface, CTransform, CVelocity, CEnemySpawner
+from src.config import LevelEvent
 
-def crear_cuadrado(
+def create_square(
     world: esper.World,
     size: pygame.Vector2,
     color: pygame.Color,
@@ -25,4 +26,14 @@ def crear_cuadrado(
     world.add_component(
         cuad_entity,
         CVelocity(vel)
+    )
+
+def create_enemy_spawner(
+    world: esper.World,
+    events: list[LevelEvent],
+):
+    spawner_entity = world.create_entity()
+    world.add_component(
+        spawner_entity,
+        CEnemySpawner(events),
     )

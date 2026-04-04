@@ -10,14 +10,22 @@ class LevelEvent:
         self.position = (position['x'], position['y'])
         self.triggered = False
 
+class PlayerSpawn:
+    def __init__(self, position: dict[str, int]) -> None:
+        self.position = (position['x'], position['y'])
+
 class LevelConfig:
     def __init__(self, enemies: dict[str, EnemyData]) -> None:
         self.events: list[LevelEvent] = []
         self.enemies = enemies
+        self.player_spawn: PlayerSpawn = None
 
     def load_config(self, config_path: str):
         with open(config_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
+        
+        # Load player spawn
+        self.player_spawn = PlayerSpawn(data['player_spawn']['position'])
         
         events_data = data['enemy_spawn_events']
         self.events = [

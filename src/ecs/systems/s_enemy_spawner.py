@@ -3,7 +3,7 @@ import random
 import pygame
 
 from src.ecs.components import CEnemySpawner
-from src.create.prefab_creator import create_square
+from src.create.prefab_creator import create_enemy_square
 from src.config import EnemyData
 
 def system_enemy_spawner(
@@ -25,7 +25,7 @@ def system_enemy_spawner(
                 # Compute final velocity vector
                 velocity = velocity_direction * velocity_magnitude
 
-                create_square(
+                create_enemy_square(
                     world,
                     size=pygame.Vector2(enemy.size),
                     color=pygame.Color(enemy.color),

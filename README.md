@@ -1,2 +1,2 @@
-# PROYECTO - SEMANA 01
-Proyecto de la semana 1 del curso "introducción al desarrollo de videojuegos con ECS"
+# PROYECTO - Desarrollo de Videojuegos MISO
+Proyecto del curso "Introducción al desarrollo de videojuegos con ECS"

@@ -1,13 +1,13 @@
 {
-    "title": "Prueba 02",
+    "title": "MISO - Ejercicio 03 - B",
     "size": {
-        "w": 320,
-        "h": 180
+        "w": 640,
+        "h": 360
     },
     "bg_color": {
-        "r": 100,
-        "g": 100,
-        "b": 100
+        "r": 25,
+        "g": 25,
+        "b": 25
     },
     "framerate": 60
 }

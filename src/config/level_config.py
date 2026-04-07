@@ -11,8 +11,9 @@ class LevelEvent:
         self.triggered = False
 
 class PlayerSpawn:
-    def __init__(self, position: dict[str, int]) -> None:
+    def __init__(self, position: dict[str, int], max_bullets: int) -> None:
         self.position = (position['x'], position['y'])
+        self.max_bullets = max_bullets
 
 class LevelConfig:
     def __init__(self, enemies: dict[str, EnemyData]) -> None:
@@ -25,7 +26,10 @@ class LevelConfig:
             data = json.load(file)
         
         # Load player spawn
-        self.player_spawn = PlayerSpawn(data['player_spawn']['position'])
+        self.player_spawn = PlayerSpawn(
+            data['player_spawn']['position'],
+            data['player_spawn']['max_bullets']
+        )
         
         events_data = data['enemy_spawn_events']
         self.events = [

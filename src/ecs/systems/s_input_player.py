@@ -3,9 +3,10 @@ from typing import Callable
 import pygame
 import esper
 
+
 def system_input_player(
     world: esper.World,
-    event: pygame.event.Event, 
+    event: pygame.event.Event,
     do_action: Callable[[CInputCommand], None]
 ):
     components = world.get_components(CInputCommand)

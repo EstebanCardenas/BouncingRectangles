@@ -1,3 +1,8 @@
+from src.ecs.systems.s_player_fire import system_player_fire
+from src.ecs.systems.s_collision_bullet_enemy import system_collision_bullet_enemy
+from src.ecs.systems.s_bullet_boundaries import system_bullet_boundaries
+from src.ecs.systems.s_player_clicks import system_player_clicks
+from src.ecs.systems import system_player_boundaries
 from src.ecs.systems.s_collision_player_enemy import system_collision_player_enemy
 import pygame
 import esper
@@ -16,13 +21,11 @@ class GameEngine:
     def __init__(
         self,
         config: EngineConfig,
-        level_config: LevelConfig,
-        player_config: PlayerConfig,
     ) -> None:
         # Config objects
         self.config = config
-        self.level_config = level_config
-        self.player_config = player_config
+        self.level_config = config.level_config
+        self.player_config = config.player_config
         # Init logic
         pygame.init()
         self.screen = pygame.display.set_mode(
@@ -71,6 +74,11 @@ class GameEngine:
     def _process_events(self):
         for event in pygame.event.get():
             system_input_player(self.ecs_world, event, self._do_action)
+            system_player_clicks(
+                self.ecs_world,
+                event,
+                on_click=self._handle_click,
+            )
             if event.type == pygame.QUIT:
                 self.is_running = False
 
@@ -83,12 +91,26 @@ class GameEngine:
             self.player_entity,
             self.level_config.player_spawn
         )
+        system_player_boundaries(
+            self.ecs_world, self.screen, self.player_entity)
+        system_bullet_boundaries(self.ecs_world, self.screen)
+        system_collision_bullet_enemy(self.ecs_world)
+
         self.ecs_world._clear_dead_entities()
 
     def _draw(self):
         self.screen.fill(self.config.bg_color)
         system_rendering(self.ecs_world, self.screen)
         pygame.display.flip()
+
+    def _handle_click(self, c_input: CInputCommand, click_pos: tuple[int, int]):
+        if c_input.name == 'PLAYER_FIRE':
+            system_player_fire(
+                self.ecs_world,
+                click_pos=click_pos,
+                bullet_limit=self.level_config.player_spawn.max_bullets,
+                bullet_config=self.config.bullet_config,
+            )
 
     def _do_action(self, c_input: CInputCommand):
         if c_input.name == 'PLAYER_LEFT':

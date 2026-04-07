@@ -1,0 +1,2 @@
+class CTagBullet:
+    pass

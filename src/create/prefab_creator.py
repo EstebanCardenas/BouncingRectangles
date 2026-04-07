@@ -1,10 +1,10 @@
 import pygame
-from src.ecs.components.tags import CTagPlayer, CTagEnemy
+from src.ecs.components.tags import CTagPlayer, CTagEnemy, CTagBullet
 import esper
 import pygame
 
 from src.ecs.components import CSurface, CTransform, CVelocity, CEnemySpawner, CInputCommand
-from src.config import LevelEvent, PlayerConfig, PlayerSpawn
+from src.config import LevelEvent, PlayerConfig, PlayerSpawn, BulletConfig
 
 def create_player_square(
     world: esper.World,
@@ -31,6 +31,24 @@ def create_enemy_square(
 ):
     entity = create_square(world, size, color, pos, vel)
     world.add_component(entity, CTagEnemy())
+
+def create_bullet_square(
+    world: esper.World,
+    pos: pygame.Vector2,
+    vel: pygame.Vector2,
+    bullet_config: BulletConfig
+):
+    bullet_size = pygame.Vector2(bullet_config.size[0], bullet_config.size[1])
+    # Correct the position so that the given position is the center of the bullet
+    adj_pos = pygame.Vector2(pos.x - bullet_size.x / 2, pos.y - bullet_size.y / 2)
+    entity = create_square(
+        world,
+        bullet_size,
+        pygame.Color(bullet_config.color[0], bullet_config.color[1], bullet_config.color[2]),
+        adj_pos,
+        vel,
+    )
+    world.add_component(entity, CTagBullet())
 
 def create_square(
     world: esper.World,
@@ -72,31 +90,39 @@ def create_player_input(world: esper.World):
     input_right = world.create_entity()
     input_up = world.create_entity()
     input_down = world.create_entity()
+    input_click = world.create_entity()
     world.add_component(
         input_left,
         CInputCommand(
             "PLAYER_LEFT",
-            pygame.K_a,
+            pygame.K_LEFT,
         )
     )
     world.add_component(
         input_right,
         CInputCommand(
             "PLAYER_RIGHT",
-            pygame.K_d,
+            pygame.K_RIGHT,
         )
     )
     world.add_component(
         input_up,
         CInputCommand(
             "PLAYER_UP",
-            pygame.K_w,
+            pygame.K_UP,
         )
     )
     world.add_component(
         input_down,
         CInputCommand(
             "PLAYER_DOWN",
-            pygame.K_s,
+            pygame.K_DOWN,
+        )
+    )
+    world.add_component(
+        input_click,
+        CInputCommand(
+            "PLAYER_FIRE",
+            pygame.BUTTON_LEFT,
         )
     )

@@ -21,8 +21,8 @@ def system_player_fire(
     for _, (tag, transform, surface) in player_components:
         # Calculate player center
         player_center = pygame.Vector2(
-            transform.pos.x + surface.surf.get_width() / 2,
-            transform.pos.y + surface.surf.get_height() / 2
+            transform.pos.x + surface.area.w / 2,
+            transform.pos.y + surface.area.h / 2
         )
         # Mouse target position
         target_pos = pygame.Vector2(click_pos[0], click_pos[1])

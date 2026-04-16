@@ -27,8 +27,7 @@ def system_enemy_spawner(
 
                 create_enemy_square(
                     world,
-                    size=pygame.Vector2(enemy.size),
-                    color=pygame.Color(enemy.color),
+                    img=enemy.img,
                     pos=pygame.Vector2(evt.position),
                     vel=velocity
                 )

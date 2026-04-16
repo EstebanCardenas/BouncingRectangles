@@ -1,3 +1,7 @@
+from src.ecs.systems.s_player_state import system_player_state
+from src.ecs.systems.s_animation import system_animation
+from src.ecs.systems.s_play_track import system_play_track
+from src.create.prefab_creator import create_bg_track
 from src.ecs.systems.s_player_fire import system_player_fire
 from src.ecs.systems.s_collision_bullet_enemy import system_collision_bullet_enemy
 from src.ecs.systems.s_bullet_boundaries import system_bullet_boundaries
@@ -26,6 +30,7 @@ class GameEngine:
         self.config = config
         self.level_config = config.level_config
         self.player_config = config.player_config
+
         # Init logic
         pygame.init()
         self.screen = pygame.display.set_mode(
@@ -65,6 +70,9 @@ class GameEngine:
             events=self.level_config.events,
         )
         create_player_input(self.ecs_world)
+        create_bg_track(self.ecs_world, self.config.bg_track_path)
+
+        system_play_track(self.ecs_world)
 
     def _calculate_time(self):
         self.clock.tick(self.framerate)
@@ -83,9 +91,11 @@ class GameEngine:
                 self.is_running = False
 
     def _update(self):
-        system_movement(self.ecs_world, self.delta_time)
-        system_screen_bounce(self.ecs_world, self.screen)
         system_enemy_spawner(self.ecs_world, self.current_time)
+        system_movement(self.ecs_world, self.delta_time)
+
+        system_player_state(self.ecs_world)
+        system_screen_bounce(self.ecs_world, self.screen)
         system_collision_player_enemy(
             self.ecs_world,
             self.player_entity,
@@ -95,6 +105,8 @@ class GameEngine:
             self.ecs_world, self.screen, self.player_entity)
         system_bullet_boundaries(self.ecs_world, self.screen)
         system_collision_bullet_enemy(self.ecs_world)
+
+        system_animation(self.ecs_world, self.delta_time)
 
         self.ecs_world._clear_dead_entities()
 

@@ -11,7 +11,8 @@ def system_player_boundaries(
     screen_rect = screen.get_rect()
     ply_surface = world.component_for_entity(player_entity, CSurface)
     ply_transform = world.component_for_entity(player_entity, CTransform)
-    ply_rect = ply_surface.surf.get_rect(topleft=ply_transform.pos)
+    ply_rect = CSurface.get_area_relative(ply_surface.area, ply_transform.pos)
+    
     # Correct horizontal position
     if ply_rect.left < 0:
         ply_transform.pos.x = 0

@@ -1,3 +1,6 @@
+from src.ecs.components.c_player_state import CPlayerState
+from src.ecs.components.c_animation import CAnimation
+from src.ecs.components.c_background_track import CBackgroundTrack
 import pygame
 from src.ecs.components.tags import CTagPlayer, CTagEnemy, CTagBullet
 import esper
@@ -11,25 +14,42 @@ def create_player_square(
     player_config: PlayerConfig,
     player_spawn: PlayerSpawn,
 ) -> int:
-    size = pygame.Vector2(player_config.size[0], player_config.size[1])
-    color = pygame.Color(player_config.color[0], player_config.color[1], player_config.color[2])
+    # size = pygame.Vector2(player_config.size[0], player_config.size[1])
+    # color = pygame.Color(player_config.color[0], player_config.color[1], player_config.color[2])
+    player_surface = pygame.image.load(player_config.image).convert_alpha()
+    size = player_surface.size
+    size = (size[0] / player_config.number_frames, size[1])
     pos = pygame.Vector2(
-        player_spawn.position[0] - (size.x / 2), 
-        player_spawn.position[1] - (size.y / 2),
+        player_spawn.position[0] - (size[0] / 2), 
+        player_spawn.position[1] - (size[1] / 2),
     )
     vel = pygame.Vector2(0, 0)
-    entity = create_square(world, size, color, pos, vel)
+    entity = create_sprite(world, pos, vel, player_surface)
     world.add_component(entity, CTagPlayer())
+    world.add_component(entity, CAnimation(player_config.number_frames, player_config.animations))
+    world.add_component(entity, CPlayerState())
+    return entity
+
+def create_sprite(
+    world: esper.World,
+    pos: pygame.Vector2,
+    vel: pygame.Vector2,
+    surface: pygame.Surface,
+) -> int:
+    entity = world.create_entity()
+    world.add_component(entity, CTransform(pos))
+    world.add_component(entity, CVelocity(vel))
+    world.add_component(entity, CSurface.from_surface(surface))
     return entity
 
 def create_enemy_square(
     world: esper.World,
-    size: pygame.Vector2,
-    color: pygame.Color,
+    img: str,
     pos: pygame.Vector2,
     vel: pygame.Vector2,
 ):
-    entity = create_square(world, size, color, pos, vel)
+    enemy_surface = pygame.image.load(img).convert_alpha()
+    entity = create_sprite(world, pos, vel, enemy_surface)
     world.add_component(entity, CTagEnemy())
 
 def create_bullet_square(
@@ -38,15 +58,12 @@ def create_bullet_square(
     vel: pygame.Vector2,
     bullet_config: BulletConfig
 ):
-    bullet_size = pygame.Vector2(bullet_config.size[0], bullet_config.size[1])
+    bullet_surface = pygame.image.load(bullet_config.img).convert_alpha()
+    bullet_size = bullet_surface.size
     # Correct the position so that the given position is the center of the bullet
-    adj_pos = pygame.Vector2(pos.x - bullet_size.x / 2, pos.y - bullet_size.y / 2)
-    entity = create_square(
-        world,
-        bullet_size,
-        pygame.Color(bullet_config.color[0], bullet_config.color[1], bullet_config.color[2]),
-        adj_pos,
-        vel,
+    adj_pos = pygame.Vector2(pos.x - bullet_size[0] / 2, pos.y - bullet_size[1] / 2)
+    entity = create_sprite(
+        world, adj_pos, vel, bullet_surface,
     )
     world.add_component(entity, CTagBullet())
 
@@ -126,3 +143,7 @@ def create_player_input(world: esper.World):
             pygame.BUTTON_LEFT,
         )
     )
+
+def create_bg_track(world: esper.World, track_path: str):
+    entity = world.create_entity()
+    world.add_component(entity, CBackgroundTrack(track_path))

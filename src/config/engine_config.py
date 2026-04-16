@@ -10,6 +10,7 @@ class EngineConfig:
         self.size: tuple[int, int]
         self.bg_color: tuple[int, int, int]
         self.framerate: int
+        self.bg_track_path: str
         self.enemies_config: EnemiesConfig = EnemiesConfig()
         self.player_config: PlayerConfig = PlayerConfig()
         self.level_config: LevelConfig = None

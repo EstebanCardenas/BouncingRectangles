@@ -3,6 +3,7 @@ from src.config.enemies_config import EnemiesConfig
 from src.config.level_config import LevelConfig
 from src.config.player_config import PlayerConfig
 from src.config.bullet_config import BulletConfig
+from src.config.explosion_config import ExplosionConfig
 
 class EngineConfig:
     def __init__(self) -> None:
@@ -15,6 +16,7 @@ class EngineConfig:
         self.player_config: PlayerConfig = PlayerConfig()
         self.level_config: LevelConfig = None
         self.bullet_config: BulletConfig = BulletConfig()
+        self.explosion_config: ExplosionConfig = ExplosionConfig()
 
     def load_config(self, config_dir: str):
         # Window config
@@ -34,3 +36,4 @@ class EngineConfig:
         self.level_config.load_config(f"{config_dir}/level_01.json")
         self.player_config.load_config(f"{config_dir}/player.json")
         self.bullet_config.load_config(f"{config_dir}/bullet.json")
+        self.explosion_config.load_config(f"{config_dir}/explosion.json")

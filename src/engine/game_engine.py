@@ -1,3 +1,6 @@
+from src.ecs.systems.s_hunter_state import system_hunter_state
+from src.ecs.systems.s_explosion_kill import system_explosion_kill
+from src.ecs.systems.s_collision_bullet_hunter import system_collision_bullet_hunter
 from src.ecs.systems.s_player_state import system_player_state
 from src.ecs.systems.s_animation import system_animation
 from src.ecs.systems.s_play_track import system_play_track
@@ -95,18 +98,22 @@ class GameEngine:
         system_movement(self.ecs_world, self.delta_time)
 
         system_player_state(self.ecs_world)
+        system_hunter_state(self.ecs_world)
         system_screen_bounce(self.ecs_world, self.screen)
         system_collision_player_enemy(
             self.ecs_world,
             self.player_entity,
-            self.level_config.player_spawn
+            self.level_config.player_spawn,
+            self.config.explosion_config
         )
         system_player_boundaries(
             self.ecs_world, self.screen, self.player_entity)
         system_bullet_boundaries(self.ecs_world, self.screen)
-        system_collision_bullet_enemy(self.ecs_world)
+        system_collision_bullet_enemy(self.ecs_world, self.config.explosion_config)
+        system_collision_bullet_hunter(self.ecs_world, self.config.explosion_config)
 
         system_animation(self.ecs_world, self.delta_time)
+        system_explosion_kill(self.ecs_world)
 
         self.ecs_world._clear_dead_entities()
 

@@ -1,9 +1,9 @@
 import json
 
-from src.config.enemies_config import EnemyData
+from src.config.enemies_config import Enemy
 
 class LevelEvent:
-    def __init__(self, time: float, enemy_type: str, enemy_data: EnemyData, position: dict) -> None:
+    def __init__(self, time: float, enemy_type: str, enemy_data: Enemy, position: dict) -> None:
         self.time = time
         self.enemy_type = enemy_type
         self.enemy_data = enemy_data
@@ -16,7 +16,7 @@ class PlayerSpawn:
         self.max_bullets = max_bullets
 
 class LevelConfig:
-    def __init__(self, enemies: dict[str, EnemyData]) -> None:
+    def __init__(self, enemies: dict[str, Enemy]) -> None:
         self.events: list[LevelEvent] = []
         self.enemies = enemies
         self.player_spawn: PlayerSpawn = None

@@ -1,34 +1,38 @@
+from src.ecs.components.c_hunter_state import CHunterState
+from src.ecs.components.c_return import CReturn
+from src.ecs.components.c_chase import CChase
+from src.ecs.components.tags.c_tag_hunter import CTagHunter
 from src.ecs.components.c_player_state import CPlayerState
 from src.ecs.components.c_animation import CAnimation
 from src.ecs.components.c_background_track import CBackgroundTrack
 import pygame
-from src.ecs.components.tags import CTagPlayer, CTagEnemy, CTagBullet
+from src.ecs.components.tags import CTagPlayer, CTagEnemy, CTagBullet, CTagExplosion
 import esper
 import pygame
 
 from src.ecs.components import CSurface, CTransform, CVelocity, CEnemySpawner, CInputCommand
-from src.config import LevelEvent, PlayerConfig, PlayerSpawn, BulletConfig
+from src.config import LevelEvent, PlayerConfig, PlayerSpawn, BulletConfig, HunterData, ExplosionConfig
+
 
 def create_player_square(
     world: esper.World,
     player_config: PlayerConfig,
     player_spawn: PlayerSpawn,
 ) -> int:
-    # size = pygame.Vector2(player_config.size[0], player_config.size[1])
-    # color = pygame.Color(player_config.color[0], player_config.color[1], player_config.color[2])
     player_surface = pygame.image.load(player_config.image).convert_alpha()
     size = player_surface.size
-    size = (size[0] / player_config.number_frames, size[1])
+    size = (size[0] / player_config.animations.number_frames, size[1])
     pos = pygame.Vector2(
-        player_spawn.position[0] - (size[0] / 2), 
+        player_spawn.position[0] - (size[0] / 2),
         player_spawn.position[1] - (size[1] / 2),
     )
     vel = pygame.Vector2(0, 0)
     entity = create_sprite(world, pos, vel, player_surface)
     world.add_component(entity, CTagPlayer())
-    world.add_component(entity, CAnimation(player_config.number_frames, player_config.animations))
+    world.add_component(entity, CAnimation(player_config.animations))
     world.add_component(entity, CPlayerState())
     return entity
+
 
 def create_sprite(
     world: esper.World,
@@ -42,6 +46,7 @@ def create_sprite(
     world.add_component(entity, CSurface.from_surface(surface))
     return entity
 
+
 def create_enemy_square(
     world: esper.World,
     img: str,
@@ -52,6 +57,32 @@ def create_enemy_square(
     entity = create_sprite(world, pos, vel, enemy_surface)
     world.add_component(entity, CTagEnemy())
 
+
+def create_enemy_hunter(
+    world: esper.World,
+    hunter_config: HunterData,
+    pos: pygame.Vector2,
+):
+    hunter_surface = pygame.image.load(hunter_config.img).convert_alpha()
+    size = hunter_surface.get_size()
+    size = (size[0] / hunter_config.animations.number_frames, size[1])
+    # Center the hunter on the spawn position
+    adj_pos = pygame.Vector2(pos.x - size[0] / 2, pos.y - size[1] / 2)
+    vel = pygame.Vector2(0, 0)
+    entity = create_sprite(world, adj_pos, vel, hunter_surface)
+    world.add_component(entity, CTagHunter())
+    world.add_component(entity, CChase(
+        hunter_config.velocity_chase, hunter_config.distance_start_chase))
+    world.add_component(entity, CReturn(
+        hunter_config.velocity_return,
+        hunter_config.distance_start_return,
+        adj_pos.copy(),
+    ))
+
+    world.add_component(entity, CAnimation(hunter_config.animations))
+    world.add_component(entity, CHunterState())
+
+
 def create_bullet_square(
     world: esper.World,
     pos: pygame.Vector2,
@@ -61,11 +92,28 @@ def create_bullet_square(
     bullet_surface = pygame.image.load(bullet_config.img).convert_alpha()
     bullet_size = bullet_surface.size
     # Correct the position so that the given position is the center of the bullet
-    adj_pos = pygame.Vector2(pos.x - bullet_size[0] / 2, pos.y - bullet_size[1] / 2)
+    adj_pos = pygame.Vector2(
+        pos.x - bullet_size[0] / 2, pos.y - bullet_size[1] / 2)
     entity = create_sprite(
         world, adj_pos, vel, bullet_surface,
     )
     world.add_component(entity, CTagBullet())
+
+
+def create_explosion(
+    world: esper.World,
+    pos: pygame.Vector2,
+    explosion_config: ExplosionConfig,
+):
+    explosion_surface = pygame.image.load(
+        explosion_config.image).convert_alpha()
+    size = explosion_surface.get_size()
+    size = (size[0] / explosion_config.animations.number_frames, size[1])
+    vel = pygame.Vector2(0, 0)
+    entity = create_sprite(world, pos, vel, explosion_surface)
+    world.add_component(entity, CTagExplosion())
+    world.add_component(entity, CAnimation(explosion_config.animations))
+
 
 def create_square(
     world: esper.World,
@@ -92,6 +140,7 @@ def create_square(
     )
     return cuad_entity
 
+
 def create_enemy_spawner(
     world: esper.World,
     events: list[LevelEvent],
@@ -101,6 +150,7 @@ def create_enemy_spawner(
         spawner_entity,
         CEnemySpawner(events),
     )
+
 
 def create_player_input(world: esper.World):
     input_left = world.create_entity()
@@ -143,6 +193,7 @@ def create_player_input(world: esper.World):
             pygame.BUTTON_LEFT,
         )
     )
+
 
 def create_bg_track(world: esper.World, track_path: str):
     entity = world.create_entity()

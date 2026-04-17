@@ -1,29 +1,16 @@
 import json
+from src.config.player_config import AnimationData, AnimationsInfo
 
-class AnimationData:
-    def __init__(self, name: str, start: int, end: int, framerate: int) -> None:
-        self.name = name
-        self.start = start
-        self.end = end
-        self.framerate = 1.0 / framerate
-
-class AnimationsInfo:
-    def __init__(self, number_frames: int, animations_list: list[AnimationData]) -> None:
-        self.number_frames = number_frames
-        self.list = animations_list
-
-class PlayerConfig:
-    def __init__(self):
+class ExplosionConfig:
+    def __init__(self) -> None:
         self.image: str = ""
         self.animations: AnimationsInfo = None
-        self.input_velocity: float = 0.0
 
     def load_config(self, config_path: str):
         with open(config_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
         
         self.image = data['image']
-        self.input_velocity = data['input_velocity']
         
         anim_data = data['animations']
         animations_list = [
@@ -31,4 +18,3 @@ class PlayerConfig:
             for a in anim_data['list']
         ]
         self.animations = AnimationsInfo(anim_data['number_frames'], animations_list)
-

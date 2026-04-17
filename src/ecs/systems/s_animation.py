@@ -15,6 +15,7 @@ def system_animation(
             c_a.curr_frame += 1
             if c_a.curr_frame > c_a.animations_list[c_a.curr_anim].end: # Frame limit
                 c_a.curr_frame = c_a.animations_list[c_a.curr_anim].start
+                c_a.completed_once = True
             # Calculate new sub-area
             rect = c_s.surf.get_rect()
             c_s.area.w = rect.w / c_a.number_frames

@@ -1,0 +1,2 @@
+class CTagHunter:
+    pass

@@ -1,3 +1,4 @@
+from src.engine.service_locator import ServiceLocator
 from src.ecs.components.c_hunter_state import CHunterState
 from src.ecs.components.c_return import CReturn
 from src.ecs.components.c_chase import CChase
@@ -12,6 +13,7 @@ import pygame
 
 from src.ecs.components import CSurface, CTransform, CVelocity, CEnemySpawner, CInputCommand
 from src.config import LevelEvent, PlayerConfig, PlayerSpawn, BulletConfig, HunterData, ExplosionConfig
+from src.engine.service_locator import ServiceLocator
 
 
 def create_player_square(
@@ -19,7 +21,7 @@ def create_player_square(
     player_config: PlayerConfig,
     player_spawn: PlayerSpawn,
 ) -> int:
-    player_surface = pygame.image.load(player_config.image).convert_alpha()
+    player_surface = ServiceLocator.images_service.get(player_config.image)
     size = player_surface.size
     size = (size[0] / player_config.animations.number_frames, size[1])
     pos = pygame.Vector2(
@@ -52,10 +54,12 @@ def create_enemy_square(
     img: str,
     pos: pygame.Vector2,
     vel: pygame.Vector2,
+    sound: str,
 ):
-    enemy_surface = pygame.image.load(img).convert_alpha()
+    enemy_surface = ServiceLocator.images_service.get(img)
     entity = create_sprite(world, pos, vel, enemy_surface)
     world.add_component(entity, CTagEnemy())
+    ServiceLocator.sounds_service.play(sound)
 
 
 def create_enemy_hunter(
@@ -63,7 +67,7 @@ def create_enemy_hunter(
     hunter_config: HunterData,
     pos: pygame.Vector2,
 ):
-    hunter_surface = pygame.image.load(hunter_config.img).convert_alpha()
+    hunter_surface = ServiceLocator.images_service.get(hunter_config.img)
     size = hunter_surface.get_size()
     size = (size[0] / hunter_config.animations.number_frames, size[1])
     # Center the hunter on the spawn position
@@ -72,7 +76,10 @@ def create_enemy_hunter(
     entity = create_sprite(world, adj_pos, vel, hunter_surface)
     world.add_component(entity, CTagHunter())
     world.add_component(entity, CChase(
-        hunter_config.velocity_chase, hunter_config.distance_start_chase))
+        hunter_config.velocity_chase,
+        hunter_config.distance_start_chase,
+        hunter_config.chase_sound,
+    ))
     world.add_component(entity, CReturn(
         hunter_config.velocity_return,
         hunter_config.distance_start_return,
@@ -89,7 +96,7 @@ def create_bullet_square(
     vel: pygame.Vector2,
     bullet_config: BulletConfig
 ):
-    bullet_surface = pygame.image.load(bullet_config.img).convert_alpha()
+    bullet_surface = ServiceLocator.images_service.get(bullet_config.img)
     bullet_size = bullet_surface.size
     # Correct the position so that the given position is the center of the bullet
     adj_pos = pygame.Vector2(
@@ -98,6 +105,7 @@ def create_bullet_square(
         world, adj_pos, vel, bullet_surface,
     )
     world.add_component(entity, CTagBullet())
+    ServiceLocator.sounds_service.play(bullet_config.sound)
 
 
 def create_explosion(
@@ -105,14 +113,15 @@ def create_explosion(
     pos: pygame.Vector2,
     explosion_config: ExplosionConfig,
 ):
-    explosion_surface = pygame.image.load(
-        explosion_config.image).convert_alpha()
+    explosion_surface = ServiceLocator.images_service.get(
+        explosion_config.image)
     size = explosion_surface.get_size()
     size = (size[0] / explosion_config.animations.number_frames, size[1])
     vel = pygame.Vector2(0, 0)
     entity = create_sprite(world, pos, vel, explosion_surface)
     world.add_component(entity, CTagExplosion())
     world.add_component(entity, CAnimation(explosion_config.animations))
+    ServiceLocator.sounds_service.play(explosion_config.sound)
 
 
 def create_square(

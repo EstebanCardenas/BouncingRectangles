@@ -28,7 +28,8 @@ def system_enemy_spawner(
                         world,
                         img=enemy_config.img,
                         pos=pygame.Vector2(evt.position),
-                        vel=velocity
+                        vel=velocity,
+                        sound=enemy_config.sound,
                     )
                 elif enemy_config.enemy_type == 'hunter':
                     # Hunters might start with zero velocity and follow logic in their own system

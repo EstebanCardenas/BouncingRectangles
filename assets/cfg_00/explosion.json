@@ -1,5 +1,6 @@
 {
     "image": "assets/img/explosion.png",
+    "sound": "assets/snd/explosion.ogg",
     "animations": {
         "number_frames": 8,
         "list": [

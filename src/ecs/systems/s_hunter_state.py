@@ -1,3 +1,4 @@
+from src.engine.service_locator import ServiceLocator
 from src.ecs.components.c_hunter_state import CHunterState, HunterState
 from src.ecs.components.c_animation import CAnimation
 from src.ecs.components.c_chase import CChase
@@ -34,6 +35,7 @@ def _do_hunter_idle(c_v: CVelocity, c_a: CAnimation, c_hs: CHunterState, c_ch: C
     c_v.vel.y = 0
     if distance <= c_ch.distance_start_chase:
         c_hs.hunter_state = HunterState.MOVE
+        if c_ch.chase_sound != None: ServiceLocator.sounds_service.play(c_ch.chase_sound)
 
 def _do_hunter_move(c_v: CVelocity, c_a: CAnimation, c_hs: CHunterState, c_ch: CChase, c_ret: CReturn, p_pos: pygame.Vector2, h_pos: pygame.Vector2):
     _set_animation(c_a, 0)

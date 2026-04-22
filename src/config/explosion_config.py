@@ -4,6 +4,7 @@ from src.config.player_config import AnimationData, AnimationsInfo
 class ExplosionConfig:
     def __init__(self) -> None:
         self.image: str = ""
+        self.sound = ''
         self.animations: AnimationsInfo = None
 
     def load_config(self, config_path: str):
@@ -11,7 +12,7 @@ class ExplosionConfig:
             data = json.load(file)
         
         self.image = data['image']
-        
+        self.sound = data['sound']
         anim_data = data['animations']
         animations_list = [
             AnimationData(a['name'], a['start'], a['end'], a['framerate'])

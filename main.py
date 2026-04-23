@@ -5,17 +5,12 @@ from src.config import EngineConfig, LevelConfig, EnemiesConfig, PlayerConfig
 from src.engine.game_engine import GameEngine
 import asyncio
 
-from pathlib import Path
-import os
-
-# Get the project root directory
-PROJECT_ROOT = Path(__file__).parent
-
-BASE_CONFIG_PATH = str(PROJECT_ROOT / 'assets' / 'cfg_0{}')
+BASE_CONFIG_PATH = 'assets/cfg_0{}'
 CONFIG_NUM = 0
 
-BG_TRACK_PATH = str(PROJECT_ROOT / 'assets' / 'snd' / 'crossing-the-rubicon.ogg')
-FONT_PATH = str(PROJECT_ROOT / 'assets' / 'fnt' / 'PressStart2P.ttf')
+BG_TRACK_PATH = 'assets/snd/crossing-the-rubicon.ogg'
+FONT_PATH = 'assets/fnt/PressStart2P.ttf'
+
 
 async def main():
     # Load config

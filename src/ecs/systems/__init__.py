@@ -1,4 +1,5 @@
 from src.ecs.systems.s_movement import system_movement
+from src.ecs.systems.s_lifetime import system_lifetime
 from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_enemy_spawner import system_enemy_spawner
@@ -6,3 +7,6 @@ from src.ecs.systems.s_input_player import system_input_player
 from src.ecs.systems.s_player_boundaries import system_player_boundaries
 from src.ecs.systems.s_player_clicks import system_player_clicks
 from src.ecs.systems.s_player_fire import system_player_fire
+from src.ecs.systems.s_collision_special_bullet_enemy import system_collision_special_bullet_enemy
+from src.ecs.systems.s_collision_special_bullet_hunter import system_collision_special_bullet_hunter
+from src.ecs.systems.s_update_cooldown_text import system_update_cooldown_text

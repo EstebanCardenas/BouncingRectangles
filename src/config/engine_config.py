@@ -4,6 +4,7 @@ from src.config.level_config import LevelConfig
 from src.config.player_config import PlayerConfig
 from src.config.bullet_config import BulletConfig
 from src.config.explosion_config import ExplosionConfig
+from src.config.interface_config import InterfaceConfig
 
 class EngineConfig:
     def __init__(self) -> None:
@@ -12,11 +13,14 @@ class EngineConfig:
         self.bg_color: tuple[int, int, int]
         self.framerate: int
         self.bg_track_path: str
+        self.font_path: str
         self.enemies_config: EnemiesConfig = EnemiesConfig()
         self.player_config: PlayerConfig = PlayerConfig()
         self.level_config: LevelConfig = None
         self.bullet_config: BulletConfig = BulletConfig()
+        self.special_bullet_config: BulletConfig = BulletConfig()
         self.explosion_config: ExplosionConfig = ExplosionConfig()
+        self.interface_config: InterfaceConfig = InterfaceConfig()
 
     def load_config(self, config_dir: str):
         # Window config
@@ -36,4 +40,6 @@ class EngineConfig:
         self.level_config.load_config(f"{config_dir}/level_01.json")
         self.player_config.load_config(f"{config_dir}/player.json")
         self.bullet_config.load_config(f"{config_dir}/bullet.json")
+        self.special_bullet_config.load_config(f"{config_dir}/bullet_special.json")
         self.explosion_config.load_config(f"{config_dir}/explosion.json")
+        self.interface_config.load_config(f"{config_dir}/interface.json")

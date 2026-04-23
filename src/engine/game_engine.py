@@ -1,3 +1,7 @@
+from src.create.prefab_creator import create_cooldown_text
+from src.ecs.systems.s_special_fire import system_special_fire, system_special_weapon_cooldown
+from src.create.prefab_creator import create_text
+from src.engine.service_locator import ServiceLocator
 import asyncio
 from src.ecs.systems.s_hunter_state import system_hunter_state
 from src.ecs.systems.s_explosion_kill import system_explosion_kill
@@ -39,7 +43,7 @@ class GameEngine:
         pygame.init()
         self.screen = pygame.display.set_mode(
             config.size,
-            pygame.SCALED,
+            0,
         )
         pygame.display.set_caption(config.title)
         self.clock = pygame.time.Clock()
@@ -48,8 +52,10 @@ class GameEngine:
         self.delta_time = 0.0
         self.current_time = 0.0
         self.is_paused = False
-        self.font = pygame.font.SysFont(None, 100)
-        self.pause_text = self.font.render(
+
+        # Init pause visuals
+        font = ServiceLocator.fonts_service.get(config.font_path, 28)
+        self.pause_text = font.render(
             'PAUSADO', True, pygame.Color(255, 255, 255))
         self.pause_rect = self.pause_text.get_rect(
             center=self.screen.get_rect().center)
@@ -68,6 +74,41 @@ class GameEngine:
         self._clean()
 
     def _create(self):
+        ic = self.config.interface_config
+        create_text( # Render title
+            self.ecs_world,
+            text=ic.title.content,
+            font_path=ic.title.font,
+            font_size=ic.title.font_size,
+            color=ic.title.color,
+            pos=(16, 16)
+        )
+        create_text( # Render subtitle
+            self.ecs_world,
+            text=ic.subtitle.content,
+            font_path=ic.subtitle.font,
+            font_size=ic.subtitle.font_size,
+            color=ic.subtitle.color,
+            pos=(16, 16 + ic.title.font_size + 8) # Initial padding + title size + spacing between title
+        )
+        special_text_y = self.config.size[1] - 28 - ic.special_text.font_size
+        create_text( # Render special power text
+            self.ecs_world,
+            text=ic.special_text.content,
+            font_path=ic.special_text.font,
+            font_size=ic.special_text.font_size,
+            color=ic.special_text.color,
+            pos=(16, special_text_y)
+        )
+        create_cooldown_text( # Render cooldown
+            self.ecs_world,
+            text="100%",
+            font_path=ic.special_text.font,
+            font_size=8,
+            color=pygame.Color(0, 255, 0),
+            pos=(16, special_text_y + ic.special_text.font_size + 4)
+        )
+
         self.player_entity = create_player_square(
             self.ecs_world,
             self.player_config,
@@ -106,6 +147,9 @@ class GameEngine:
             return
         system_enemy_spawner(self.ecs_world, self.current_time)
         system_movement(self.ecs_world, self.delta_time)
+        system_lifetime(self.ecs_world, self.delta_time)
+        system_special_weapon_cooldown(self.ecs_world, self.delta_time)
+        system_update_cooldown_text(self.ecs_world, self.config.interface_config.special_text.font)
 
         system_player_state(self.ecs_world)
         system_hunter_state(self.ecs_world)
@@ -119,8 +163,14 @@ class GameEngine:
         system_player_boundaries(
             self.ecs_world, self.screen, self.player_entity)
         system_bullet_boundaries(self.ecs_world, self.screen)
-        system_collision_bullet_enemy(self.ecs_world, self.config.explosion_config)
-        system_collision_bullet_hunter(self.ecs_world, self.config.explosion_config)
+        system_collision_bullet_enemy(
+            self.ecs_world, self.config.explosion_config)
+        system_collision_bullet_hunter(
+            self.ecs_world, self.config.explosion_config)
+        system_collision_special_bullet_enemy(
+            self.ecs_world, self.config.explosion_config)
+        system_collision_special_bullet_hunter(
+            self.ecs_world, self.config.explosion_config)
 
         system_animation(self.ecs_world, self.delta_time)
         system_explosion_kill(self.ecs_world)
@@ -144,6 +194,8 @@ class GameEngine:
                 bullet_limit=self.level_config.player_spawn.max_bullets,
                 bullet_config=self.config.bullet_config,
             )
+        elif c_input.name == 'PLAYER_SPECIAL':
+            system_special_fire(self.ecs_world, self.config.special_bullet_config)
 
     def _do_action(self, c_input: CInputCommand):
         if c_input.name == 'PLAYER_LEFT':

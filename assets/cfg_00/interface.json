@@ -1,0 +1,20 @@
+{
+    "title": {
+        "font": "assets/fnt/PressStart2P.ttf",
+        "font_size": 12,
+        "color": [255, 255, 255],
+        "content": "EJERCICIO 04"
+    },
+    "subtitle": {
+        "font": "assets/fnt/PressStart2P.ttf",
+        "font_size": 6,
+        "color": [255, 255, 0],
+        "content": "Controles: Flechas, click normal, click derecho con balas en el mundo"
+    },
+    "special_text": {
+        "font": "assets/fnt/PressStart2P.ttf",
+        "font_size": 8,
+        "color": [255, 255, 255],
+        "content": "ESPECIAL"
+    }
+}

@@ -1,3 +1,4 @@
+from src.ecs.components.tags.c_tag_special_bullet import CTagSpecialBullet
 from src.engine.service_locator import ServiceLocator
 from src.ecs.components.c_hunter_state import CHunterState
 from src.ecs.components.c_return import CReturn
@@ -7,11 +8,11 @@ from src.ecs.components.c_player_state import CPlayerState
 from src.ecs.components.c_animation import CAnimation
 from src.ecs.components.c_background_track import CBackgroundTrack
 import pygame
-from src.ecs.components.tags import CTagPlayer, CTagEnemy, CTagBullet, CTagExplosion
+from src.ecs.components.tags import CTagPlayer, CTagEnemy, CTagBullet, CTagExplosion, CTagCooldownText
 import esper
 import pygame
 
-from src.ecs.components import CSurface, CTransform, CVelocity, CEnemySpawner, CInputCommand
+from src.ecs.components import CSurface, CTransform, CVelocity, CLifetime, CSpecialWeapon, CEnemySpawner, CInputCommand
 from src.config import LevelEvent, PlayerConfig, PlayerSpawn, BulletConfig, HunterData, ExplosionConfig
 from src.engine.service_locator import ServiceLocator
 
@@ -33,6 +34,7 @@ def create_player_square(
     world.add_component(entity, CTagPlayer())
     world.add_component(entity, CAnimation(player_config.animations))
     world.add_component(entity, CPlayerState())
+    world.add_component(entity, CSpecialWeapon(2.5))
     return entity
 
 
@@ -108,6 +110,20 @@ def create_bullet_square(
     ServiceLocator.sounds_service.play(bullet_config.sound)
 
 
+def create_special_fire(
+    world: esper.World,
+    pos: pygame.Vector2,
+    vel: pygame.Vector2,
+    bullet_config: BulletConfig,
+) -> int:
+    surf = ServiceLocator.images_service.get(bullet_config.img)
+    entity = create_sprite(world, pos, vel, surf)
+    world.add_component(entity, CTagSpecialBullet())
+    world.add_component(entity, CLifetime(0.7))
+    ServiceLocator.sounds_service.play(bullet_config.sound)
+    return entity
+
+
 def create_explosion(
     world: esper.World,
     pos: pygame.Vector2,
@@ -167,6 +183,7 @@ def create_player_input(world: esper.World):
     input_up = world.create_entity()
     input_down = world.create_entity()
     input_click = world.create_entity()
+    input_special = world.create_entity()
     input_pause = world.create_entity()
     world.add_component(
         input_left,
@@ -204,12 +221,48 @@ def create_player_input(world: esper.World):
         )
     )
     world.add_component(
+        input_special,
+        CInputCommand(
+            "PLAYER_SPECIAL",
+            pygame.BUTTON_RIGHT,
+        )
+    )
+    world.add_component(
         input_pause,
         CInputCommand(
             "GAME_PAUSE",
             pygame.K_p,
         )
     )
+
+
+def create_text(
+    world: esper.World,
+    text: str,
+    font_path: str,
+    font_size: int,
+    color: pygame.Color,
+    pos: tuple[int, int],
+) -> int:
+    entity = world.create_entity()
+    font = ServiceLocator.fonts_service.get(font_path, font_size)
+    surf = font.render(text, True, color)
+    world.add_component(entity, CSurface.from_surface(surf))
+    world.add_component(entity, CTransform(pygame.Vector2(pos[0], pos[1])))
+    return entity
+
+
+def create_cooldown_text(
+    world: esper.World,
+    text: str,
+    font_path: str,
+    font_size: int,
+    color: pygame.Color,
+    pos: tuple[int, int],
+) -> int:
+    entity = create_text(world, text, font_path, font_size, color, pos)
+    world.add_component(entity, CTagCooldownText())
+    return entity
 
 
 def create_bg_track(world: esper.World, track_path: str):

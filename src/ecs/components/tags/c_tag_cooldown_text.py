@@ -1,0 +1,2 @@
+class CTagCooldownText:
+    pass

@@ -167,6 +167,7 @@ def create_player_input(world: esper.World):
     input_up = world.create_entity()
     input_down = world.create_entity()
     input_click = world.create_entity()
+    input_pause = world.create_entity()
     world.add_component(
         input_left,
         CInputCommand(
@@ -200,6 +201,13 @@ def create_player_input(world: esper.World):
         CInputCommand(
             "PLAYER_FIRE",
             pygame.BUTTON_LEFT,
+        )
+    )
+    world.add_component(
+        input_pause,
+        CInputCommand(
+            "GAME_PAUSE",
+            pygame.K_p,
         )
     )
 

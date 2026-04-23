@@ -3,6 +3,7 @@
 
 from src.config import EngineConfig, LevelConfig, EnemiesConfig, PlayerConfig
 from src.engine.game_engine import GameEngine
+import asyncio
 
 BASE_CONFIG_PATH = 'assets/cfg_0{}'
 CONFIG_NUM = 0
@@ -17,4 +18,4 @@ if __name__ == "__main__":
 
     # Run engine
     engine = GameEngine(engine_config)
-    engine.run()
+    asyncio.run(engine.run())

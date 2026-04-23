@@ -63,7 +63,7 @@ class EnemiesConfig:
                     enemy_info['velocity_return'],
                     enemy_info['distance_start_chase'],
                     enemy_info['distance_start_return'],
-                    enemy_info['chase_sound'],
+                    enemy_info['sound_chase'],
                 )
             elif enemy_name.startswith('Asteroid'):
                 # Process Asteroid

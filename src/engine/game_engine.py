@@ -1,3 +1,4 @@
+import asyncio
 from src.ecs.systems.s_hunter_state import system_hunter_state
 from src.ecs.systems.s_explosion_kill import system_explosion_kill
 from src.ecs.systems.s_collision_bullet_hunter import system_collision_bullet_hunter
@@ -46,10 +47,16 @@ class GameEngine:
         self.framerate = config.framerate
         self.delta_time = 0.0
         self.current_time = 0.0
+        self.is_paused = False
+        self.font = pygame.font.SysFont(None, 100)
+        self.pause_text = self.font.render(
+            'PAUSADO', True, pygame.Color(255, 255, 255))
+        self.pause_rect = self.pause_text.get_rect(
+            center=self.screen.get_rect().center)
 
         self.ecs_world = esper.World()
 
-    def run(self) -> None:
+    async def run(self) -> None:
         self._create()
         self.is_running = True
         while self.is_running:
@@ -57,6 +64,7 @@ class GameEngine:
             self._process_events()
             self._update()
             self._draw()
+            await asyncio.sleep(0)
         self._clean()
 
     def _create(self):
@@ -94,6 +102,8 @@ class GameEngine:
                 self.is_running = False
 
     def _update(self):
+        if self.is_paused:
+            return
         system_enemy_spawner(self.ecs_world, self.current_time)
         system_movement(self.ecs_world, self.delta_time)
 
@@ -120,9 +130,13 @@ class GameEngine:
     def _draw(self):
         self.screen.fill(self.config.bg_color)
         system_rendering(self.ecs_world, self.screen)
+        if self.is_paused:
+            self.screen.blit(self.pause_text, self.pause_rect)
         pygame.display.flip()
 
     def _handle_click(self, c_input: CInputCommand, click_pos: tuple[int, int]):
+        if self.is_paused:
+            return
         if c_input.name == 'PLAYER_FIRE':
             system_player_fire(
                 self.ecs_world,
@@ -152,6 +166,9 @@ class GameEngine:
                 self.player_c_vel.vel.y += self.player_config.input_velocity
             elif c_input.phase == CommandPhase.END:
                 self.player_c_vel.vel.y -= self.player_config.input_velocity
+        elif c_input.name == 'GAME_PAUSE':
+            if c_input.phase == CommandPhase.START:
+                self.is_paused = not self.is_paused
 
     def _clean(self):
         self.ecs_world.clear_database()

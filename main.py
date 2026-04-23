@@ -9,7 +9,7 @@ BASE_CONFIG_PATH = 'assets/cfg_0{}'
 CONFIG_NUM = 0
 
 BG_TRACK_PATH = 'assets/snd/crossing-the-rubicon.ogg'
-FONT_PATH = 'assets/fnt/PressStart2p.ttf'
+FONT_PATH = 'assets/fnt/PressStart2P.ttf'
 
 if __name__ == "__main__":
     # Load config
